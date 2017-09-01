@@ -18,6 +18,9 @@ public class Page<E> extends ArrayList<E> implements Serializable {
 
     private int rows;
 
+    public Page() {
+    }
+
     public Page(Collection<E> collection, int index, int rows, int total) {
         super(collection);
         this.index = index;

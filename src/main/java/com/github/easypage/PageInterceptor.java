@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
  * @author: chy
  * @Date: 2017/8/13
  */
-//@Component
 @Intercepts({@Signature(
         type = Executor.class,
         method = "query",
@@ -36,9 +35,6 @@ public class PageInterceptor implements Interceptor {
 
     private static int MAPPED_STATEMENT_INDEX = 0;
     private static int PARAMETER_INDEX = 1;
-
-    public PageInterceptor() {
-    }
 
     public Object intercept(Invocation invocation) throws Throwable {
         Object[] queryArgs = invocation.getArgs();
@@ -109,7 +105,7 @@ public class PageInterceptor implements Interceptor {
                 }
             }
         }
-        System.out.println("Parameters: " + sqlBuilder.toString());
+        System.out.println("com.github.easypage-->getCount: Parameters: " + sqlBuilder.toString());
         System.out.println("Total: " + count);
         return count;
     }
