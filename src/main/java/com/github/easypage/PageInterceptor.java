@@ -9,7 +9,8 @@ import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-//import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,6 +34,8 @@ import java.util.regex.Pattern;
 )})
 public class PageInterceptor implements Interceptor {
 
+    Logger logger = LoggerFactory.getLogger(PageInterceptor.class);
+
     private static int MAPPED_STATEMENT_INDEX = 0;
     private static int PARAMETER_INDEX = 1;
 
@@ -42,10 +45,10 @@ public class PageInterceptor implements Interceptor {
         Object parameter = queryArgs[PARAMETER_INDEX];
 
         PageParam page = new PageParam();
-        String pageKey = "";// the key of pageParam in parameterMap
-        if (parameter instanceof PageParam) {
+        String pageKey = "";// 分页参数前缀
+        if (parameter instanceof PageParam) {// 只有分页参数
             page = (PageParam) parameter;
-        } else if (parameter instanceof PageParam || parameter instanceof HashMap) {
+        } else if (parameter instanceof PageParam || parameter instanceof HashMap) {// 2个及以上参数
             HashMap<String, Object> parameterMap = (HashMap<String, Object>) parameter;
             for (String key : parameterMap.keySet()) {
                 if (parameterMap.get(key) instanceof PageParam) {
@@ -67,7 +70,7 @@ public class PageInterceptor implements Interceptor {
                 Dialect dialect = new Dialect();
                 BoundSql newBoundSql = dialect.getBoungSQL(ms, boundSql, (index - 1) * rows, pageKey);
 
-                MappedStatement newMs = copyFromMappedStatement(ms, new SqlSqlSource(newBoundSql));
+                MappedStatement newMs = copyFromMappedStatement(ms, new MySqlSource(newBoundSql));
                 queryArgs[MAPPED_STATEMENT_INDEX] = newMs;
                 list = (List) invocation.proceed();
             }
@@ -76,6 +79,14 @@ public class PageInterceptor implements Interceptor {
         return invocation.proceed();
     }
 
+    /**
+     * 获取数据总条数
+     * @param mappedStatement
+     * @param parameterObject
+     * @param boundSql
+     * @return
+     * @throws SQLException
+     */
     public int getCount(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("select count(1) from (");
@@ -94,6 +105,8 @@ public class PageInterceptor implements Interceptor {
             if (rs.next()) {
                 count = rs.getInt(1);
             }
+            logger.debug("==> Preparing: {}", sqlBuilder.toString());
+            logger.debug("<== Total: {}", count);
         } finally {
             try {
                 if (rs != null) {
@@ -105,8 +118,6 @@ public class PageInterceptor implements Interceptor {
                 }
             }
         }
-        System.out.println("com.github.easypage-->getCount: Parameters: " + sqlBuilder.toString());
-        System.out.println("Total: " + count);
         return count;
     }
 
@@ -117,6 +128,11 @@ public class PageInterceptor implements Interceptor {
     public void setProperties(Properties properties) {
     }
 
+    /**
+     * 清除sql中的排序
+     * @param sql
+     * @return
+     */
     private String clearOrderBy(String sql) {
         Pattern pattern = Pattern.compile("select.*(?=(?i)order[\\s\\t\\r\\n]+(?i)by[\\s\\t\\r\\n].*)");
         Matcher matcher = pattern.matcher(sql);
@@ -127,11 +143,12 @@ public class PageInterceptor implements Interceptor {
     }
 
     private MappedStatement copyFromMappedStatement(MappedStatement ms, SqlSource newSqlSource) {
-        MappedStatement.Builder builder = new MappedStatement.Builder(ms.getConfiguration(), ms.getId(), newSqlSource, ms.getSqlCommandType());
+        MappedStatement.Builder builder = new MappedStatement.Builder(ms.getConfiguration(), ms.getId(),
+                newSqlSource, ms.getSqlCommandType());
         builder.resource(ms.getResource());
         builder.fetchSize(ms.getFetchSize());
         builder.statementType(ms.getStatementType());
-        builder.keyGenerator(ms.getKeyGenerator());
+
         if (ms.getKeyProperties() != null && ms.getKeyProperties().length != 0) {
             StringBuffer keyProperties = new StringBuffer();
             String[] keyProp;
@@ -154,18 +171,6 @@ public class PageInterceptor implements Interceptor {
         builder.flushCacheRequired(ms.isFlushCacheRequired());
         builder.useCache(ms.isUseCache());
         return builder.build();
-    }
-
-    public static class SqlSqlSource implements SqlSource {
-        BoundSql boundSql;
-
-        public SqlSqlSource(BoundSql boundSql) {
-            this.boundSql = boundSql;
-        }
-
-        public BoundSql getBoundSql(Object parameterObject) {
-            return boundSql;
-        }
     }
 
 }

@@ -16,7 +16,7 @@ import java.util.List;
 public class Dialect {
 
     /**
-     * set page parameter by db type
+     * 根据数据库类型设置参数
      * @param ms
      * @param boundSql
      * @param offset
@@ -43,7 +43,7 @@ public class Dialect {
         }
 
         // copy a new list, if use "list=boundSql.getParameterMappings()" will throws UnsupportedOperationException
-        List<ParameterMapping> list = new ArrayList<>(boundSql.getParameterMappings());
+        List<ParameterMapping> list = new ArrayList<ParameterMapping>(boundSql.getParameterMappings());
         if (offset > 0) {
             list.add(new ParameterMapping.Builder(ms.getConfiguration(), pageKey + "offset", Integer.class).build());
             list.add(new ParameterMapping.Builder(ms.getConfiguration(), pageKey + "rows", Integer.class).build());

@@ -1,18 +1,19 @@
 package com.github.easypage;
 
 /**
+ * 分页参数
  * @author: chy
  * @Date: 2017/8/13
  */
 public class PageParam {
 
     /**
-     * the number of page
+     * 页码(从1开始计数)
      */
     private int index = 0;
 
     /**
-     * the number of rows per page
+     * 每个页面展示数据条数
      */
     private int rows = Integer.MAX_VALUE;
 

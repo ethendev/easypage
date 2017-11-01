@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
+ * 分页结果封装类
  * @author: chy
  * @Date: 2017/8/19
  */
@@ -12,17 +13,17 @@ public class PageResult<T> implements Serializable {
     private static final long serialVersionUID = 4387523960534307382L;
 
     /**
-     * the number of page
+     * 页码(从1开始计数)
      */
     private int index;
 
     /**
-     * the number of all date
+     * 数据总数
      */
     private int total;
 
     /**
-     * the number of rows per page
+     * 每个页面展示数据条数
      */
     private int rows;
 
