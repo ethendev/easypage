@@ -82,12 +82,12 @@ public class PageInterceptor implements Interceptor {
     /**
      * 获取数据总条数
      * @param mappedStatement
-     * @param parameterObject
+     * @param parameter
      * @param boundSql
      * @return
      * @throws SQLException
      */
-    public int getCount(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) throws SQLException {
+    public int getCount(MappedStatement mappedStatement, Object parameter, BoundSql boundSql) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("select count(1) from (");
         sqlBuilder.append(clearOrderBy(boundSql.getSql())).append(") tmp");
@@ -99,7 +99,7 @@ public class PageInterceptor implements Interceptor {
         try {
             connection = mappedStatement.getConfiguration().getEnvironment().getDataSource().getConnection();
             countStmt = connection.prepareStatement(sqlBuilder.toString());
-            DefaultParameterHandler handler = new DefaultParameterHandler(mappedStatement, parameterObject, boundSql);
+            DefaultParameterHandler handler = new DefaultParameterHandler(mappedStatement, parameter, boundSql);
             handler.setParameters(countStmt);
             rs = countStmt.executeQuery();
             if (rs.next()) {
