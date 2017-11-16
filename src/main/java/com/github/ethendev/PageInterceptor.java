@@ -1,6 +1,6 @@
-package com.github.easypage;
+package com.github.ethendev;
 
-import com.github.easypage.dialect.Dialect;
+import com.github.ethendev.dialect.Dialect;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;

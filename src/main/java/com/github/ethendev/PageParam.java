@@ -1,4 +1,4 @@
-package com.github.easypage;
+package com.github.ethendev;
 
 /**
  * 分页参数

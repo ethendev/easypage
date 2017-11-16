@@ -1,4 +1,4 @@
-package com.github.easypage.dialect;
+package com.github.ethendev.dialect;
 
 /**
  * @author: chy

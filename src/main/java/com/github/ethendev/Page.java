@@ -1,4 +1,4 @@
-package com.github.easypage;
+package com.github.ethendev;
 
 import java.io.Serializable;
 import java.util.ArrayList;

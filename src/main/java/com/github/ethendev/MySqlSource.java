@@ -1,4 +1,4 @@
-package com.github.easypage;
+package com.github.ethendev;
 
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.SqlSource;
