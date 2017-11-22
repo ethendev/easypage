@@ -13,8 +13,8 @@
  </dependency>
 ```
 
-### 二、springMVC项目中配置plugins
-mybatis-config.xml中添加如下代码：
+### 二、配置plugins
+如果是SpringMVC项目, 在mybatis-config.xml中添加如下代码：
 ```
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "mybatis-3-config.dtd">
@@ -31,8 +31,7 @@ mybatis-config.xml中添加如下代码：
 </configuration>
 ```
 
-
-### 三、springboot中项目中配置plugins
+如果是Spring Boot项目，在SqlSessionFactory的配置中添加plugins
 
 ````
 @Bean(name = "sqlSessionFactory")
@@ -54,7 +53,7 @@ public SqlSessionFactory sqlSessionFactoryBean() throws Exception {
 }
 ``````
 
-### 四、mapper中传入 PageParam分页参数，返回值为 Page，插件就会自动对其进行分页。
+### 三、mapper中传入 PageParam分页参数，返回值为 Page，插件就会自动对其进行分页。
 
 ```
 @Mapper
@@ -72,7 +71,7 @@ public PageResult getAll(PageParam page) throws Exception {
 }
 ```
 
-### 五、常见问题
+### 四、常见问题
 
 1、 配置正确，但是没有分页
 
