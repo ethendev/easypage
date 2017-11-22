@@ -9,11 +9,11 @@
 <dependency>
    <groupId>com.github.ethendev</groupId>
    <artifactId>easypage</artifactId>
-   <version>1.0</version>
+   <version>1.0.1</version>
  </dependency>
 ```
 
-### 二、spring项目中配置plugins
+### 二、springMVC项目中配置plugins
 mybatis-config.xml中添加如下代码：
 ```
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -30,16 +30,6 @@ mybatis-config.xml中添加如下代码：
 
 </configuration>
 ```
-然后在spring-application.xml中添加如下配置
-```
-   <!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
-   <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-       <property name="dataSource" ref="dataSource"/>
-       <property name="configLocation" value="WEB-INF/mybatis-config.xml" />
-       <property name="mapperLocations" value="classpath*:com/chy/page/user/UserMapper.xml" />
-   </bean>
-```
-
 
 
 ### 三、springboot中项目中配置plugins
@@ -71,7 +61,9 @@ public SqlSessionFactory sqlSessionFactoryBean() throws Exception {
 public interface UserMapper {
     Page<UserVo> getList(PageParam page) throws Exception;
 }
+```
 
+```
 @RequestMapping(value = "/getAll", method = RequestMethod.GET)
 public PageResult getAll(PageParam page) throws Exception {
     Page<UserVo> list = mapper.getList(page);
