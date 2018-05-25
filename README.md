@@ -71,6 +71,9 @@ public PageResult getAll(PageParam page) throws Exception {
 }
 ```
 
+访问http://127.0.0.1:8080/user/getAll?index=1&rows=10，得到分页结果如下：
+![](page_result.png)
+
 ### 四、常见问题
 
 1、 配置正确，但是没有分页
