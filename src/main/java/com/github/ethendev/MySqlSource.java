@@ -4,7 +4,7 @@ import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.SqlSource;
 
 /**
- * 封装用户传递的BoundSql类
+ * Encapsulating the BoundSql class
  * @author: chy
  * @Date: 2017/11/1
  */

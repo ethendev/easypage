@@ -16,7 +16,7 @@ import java.util.List;
 public class Dialect {
 
     /**
-     * 根据数据库类型设置参数
+     * Set parameters according to database type
      * @param ms
      * @param boundSql
      * @param offset
@@ -26,24 +26,22 @@ public class Dialect {
      */
     public BoundSql getBoungSQL(MappedStatement ms, BoundSql boundSql, int offset, String pageKey) throws SQLException {
         DatabaseMetaData dbmd = ms.getConfiguration().getEnvironment().getDataSource().getConnection().getMetaData();
-        String dbType = dbmd.getDatabaseProductName();
+        DBType dbType = DBType.valueOf(dbmd.getDatabaseProductName());
 
-        String sql = boundSql.getSql();
-        if (dbType != null) {
-            switch (dbType) {
-                case "MySQL":
-                    sql = MysqlDialect.getLimitString(boundSql.getSql(), offset);
-                    break;
-                case "Oracle":
-                    sql = OracleDialect.getLimitString(boundSql.getSql(), offset);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Not supported dialect:" + dbType);
-            }
+        String sql;
+        switch (dbType) {
+            case MySQL:
+                sql = MysqlDialect.getLimitString(boundSql.getSql(), offset);
+                break;
+            case Oracle:
+                sql = OracleDialect.getLimitString(boundSql.getSql(), offset);
+                break;
+            default:
+                throw new IllegalArgumentException("Not supported dialect:" + dbType);
         }
 
-        // copy a new list, if use "list=boundSql.getParameterMappings()" will throws UnsupportedOperationException
-        List<ParameterMapping> list = new ArrayList<ParameterMapping>(boundSql.getParameterMappings());
+        // copy a new list
+        List<ParameterMapping> list = new ArrayList<>(boundSql.getParameterMappings());
         if (offset > 0) {
             list.add(new ParameterMapping.Builder(ms.getConfiguration(), pageKey + "offset", Integer.class).build());
             list.add(new ParameterMapping.Builder(ms.getConfiguration(), pageKey + "rows", Integer.class).build());

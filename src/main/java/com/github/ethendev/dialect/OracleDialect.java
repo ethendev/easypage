@@ -1,6 +1,7 @@
 package com.github.ethendev.dialect;
 
 /**
+ * Oracle paging sql
  * @author: chy
  * @Date: 2017/8/21
  */

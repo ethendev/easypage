@@ -1,6 +1,7 @@
 package com.github.ethendev.dialect;
 
 /**
+ * Mysql paging sql
  * @author: chy
  * @Date: 2017/8/21
  */

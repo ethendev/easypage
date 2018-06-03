@@ -1,11 +1,9 @@
 # easypage
+A very simple mybatis pagination plugin, supports MySQL, Oracle.
 
-## [English](README-EN.md)
-非常简洁的mybatis分页插件，支持MySQL，Oracle数据库。  
+# Tutorial
 
-# 使用教程
-
-### 一、pom.xml中添加依赖
+### 一、Adding dependencies in pom.xml
 
 ```
 <dependency>
@@ -15,8 +13,8 @@
  </dependency>
 ```
 
-### 二、配置plugins
-如果是SpringMVC项目, 在mybatis-config.xml中添加如下代码：
+### 二、Configure plugins
+Non-SpringBoot project, add the following code in mybatis-config.xml:
 ```
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "mybatis-3-config.dtd">
@@ -33,15 +31,14 @@
 </configuration>
 ```
 
-如果是Spring Boot项目，在SqlSessionFactory的配置中添加plugins
-
+If it is a SpringBoot project, add the plugin to the SqlSessionFactory configuration
 ````
 @Bean(name = "sqlSessionFactory")
 public SqlSessionFactory sqlSessionFactoryBean() throws Exception {
     SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
     bean.setDataSource(dataSource);
 
-    //添加分页插件
+    //add plugin
     PageInterceptor easypage = new PageInterceptor();
     bean.setPlugins(new Interceptor[]{easypage});
 
@@ -55,7 +52,8 @@ public SqlSessionFactory sqlSessionFactoryBean() throws Exception {
 }
 ``````
 
-### 三、mapper中传入 PageParam分页参数，返回值为 Page，插件就会自动对其进行分页。
+### 三、Add pageParam parameter in the mapper. The plugin will automatically page it.
+
 
 ```
 @Mapper
@@ -73,15 +71,14 @@ public PageResult getAll(PageParam page) throws Exception {
 }
 ```
 
-访问 http://127.0.0.1:8080/user/getAll?index=1&rows=10 ，得到分页结果如下：
+Visit http://127.0.0.1:8080/user/getAll?index=1&rows=10 to get the result of paging:
 ![](page_result.png)
 
-### 四、常见问题
+### 四、FAQ
 
-1、 配置正确，但是没有分页
+1、 Configuration is correct, but no paging
+* In the PageParam parameter, the index default value is 0, and rows default value is Integer.MAX_VALUE. As long as one parameter is the default value, it will not paged.
+* Index is counted from 1。
 
-* PageParam参数中index默认为0， rows默认为Integer.MAX_VALUE，只要有一个参数为默认值时都不会分页。
-* index从1开始计数，表示第一页。
-
-2、 是否需要配置数据库类型
-* 不需要配置，插件会根据数据库元数据自动识别数据库类型。
+2、 Whether you need to configure the database type?
+* You do not need to configure it, the plugin will automatically recognize the database type based on the database metadata.

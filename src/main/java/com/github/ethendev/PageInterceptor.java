@@ -24,12 +24,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * pagination interceptor
  * @author: chy
  * @Date: 2017/8/13
  */
 @Intercepts({@Signature(
-        type = Executor.class,
-        method = "query",
+        type = Executor.class,// the object that needs to be intercepted
+        method = "query",// the method that needs to be intercepted
         args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}
 )})
 public class PageInterceptor implements Interceptor {
@@ -39,6 +40,13 @@ public class PageInterceptor implements Interceptor {
     private static int MAPPED_STATEMENT_INDEX = 0;
     private static int PARAMETER_INDEX = 1;
 
+    /**
+     * Replacing the intercepted object method
+     * @param invocation responsibility chain object
+     * @return
+     * @throws Throwable
+     */
+    @Override
     public Object intercept(Invocation invocation) throws Throwable {
         Object[] queryArgs = invocation.getArgs();
         MappedStatement ms = (MappedStatement) queryArgs[MAPPED_STATEMENT_INDEX];
@@ -46,9 +54,9 @@ public class PageInterceptor implements Interceptor {
 
         PageParam page = new PageParam();
         String pageKey = "";// 分页参数前缀
-        if (parameter instanceof PageParam) {// 只有分页参数
+        if (parameter instanceof PageParam) {// only one parameter
             page = (PageParam) parameter;
-        } else if (parameter instanceof PageParam || parameter instanceof HashMap) {// 2个及以上参数
+        } else if (parameter instanceof HashMap) {// 2 or more parameters
             HashMap<String, Object> parameterMap = (HashMap<String, Object>) parameter;
             for (String key : parameterMap.keySet()) {
                 if (parameterMap.get(key) instanceof PageParam) {
@@ -59,6 +67,7 @@ public class PageInterceptor implements Interceptor {
             }
         }
 
+        // To determine if paging is needed, paging when the parameter is not the default
         if (page != null && page.getIndex() != 0 && page.getRows() != Integer.MAX_VALUE) {
             int index = page.getIndex();
             int rows = page.getRows();
@@ -80,7 +89,25 @@ public class PageInterceptor implements Interceptor {
     }
 
     /**
-     * 获取数据总条数
+     * Generate proxy for intercepted objects
+     * @param target the proxied object
+     * @return
+     */
+    @Override
+    public Object plugin(Object target) {
+        return Plugin.wrap(target, this);
+    }
+
+    /**
+     * Get plugin configuration properties
+     * @param properties Mybatis configuration parameters
+     */
+    @Override
+    public void setProperties(Properties properties) {
+    }
+
+    /**
+     * Get the total number of data
      * @param mappedStatement
      * @param parameter
      * @param boundSql
@@ -121,15 +148,8 @@ public class PageInterceptor implements Interceptor {
         return count;
     }
 
-    public Object plugin(Object target) {
-        return Plugin.wrap(target, this);
-    }
-
-    public void setProperties(Properties properties) {
-    }
-
     /**
-     * 清除sql中的排序
+     * Clear the sort in sql
      * @param sql
      * @return
      */
@@ -142,6 +162,12 @@ public class PageInterceptor implements Interceptor {
         return sql;
     }
 
+    /**
+     * create a new MappedStatement object
+     * @param ms
+     * @param newSqlSource
+     * @return
+     */
     private MappedStatement copyFromMappedStatement(MappedStatement ms, SqlSource newSqlSource) {
         MappedStatement.Builder builder = new MappedStatement.Builder(ms.getConfiguration(), ms.getId(),
                 newSqlSource, ms.getSqlCommandType());

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * mapper分页结果封装类
+ * Mapper paging results encapsulation class
  * @author: chy
  * @Date: 2017/8/13
  */
@@ -14,17 +14,17 @@ public class Page<E> extends ArrayList<E> implements Serializable {
     private static final long serialVersionUID = 8124541304622348182L;
 
     /**
-     * 页码(从1开始计数)
+     * page number(count from 1)
      */
     private int index;
 
     /**
-     * 数据总数
+     * total number of data
      */
     private int total;
 
     /**
-     * 每个页面展示数据条数
+     * number of data displayed per page
      */
     private int rows;
 

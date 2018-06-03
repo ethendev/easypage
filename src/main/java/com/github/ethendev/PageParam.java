@@ -1,19 +1,19 @@
 package com.github.ethendev;
 
 /**
- * 分页参数
+ * pagination parameters
  * @author: chy
  * @Date: 2017/8/13
  */
 public class PageParam {
 
     /**
-     * 页码(从1开始计数)
+     * page number(count from 1)
      */
     private int index = 0;
 
     /**
-     * 每个页面展示数据条数
+     * number of data displayed per page
      */
     private int rows = Integer.MAX_VALUE;
 
