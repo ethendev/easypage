@@ -37,6 +37,11 @@ public class PageInterceptor implements Interceptor {
 
     Logger logger = LoggerFactory.getLogger(PageInterceptor.class);
 
+    /**
+     * Whether paging is required
+     */
+    private static boolean pageEnabled = true;
+
     private static int MAPPED_STATEMENT_INDEX = 0;
     private static int PARAMETER_INDEX = 1;
 
@@ -48,42 +53,44 @@ public class PageInterceptor implements Interceptor {
      */
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
-        Object[] queryArgs = invocation.getArgs();
-        MappedStatement ms = (MappedStatement) queryArgs[MAPPED_STATEMENT_INDEX];
-        Object parameter = queryArgs[PARAMETER_INDEX];
+        if(pageEnabled){
+            Object[] queryArgs = invocation.getArgs();
+            MappedStatement ms = (MappedStatement) queryArgs[MAPPED_STATEMENT_INDEX];
+            Object parameter = queryArgs[PARAMETER_INDEX];
 
-        PageParam page = new PageParam();
-        String pageKey = "";// 分页参数前缀
-        if (parameter instanceof PageParam) {// only one parameter
-            page = (PageParam) parameter;
-        } else if (parameter instanceof HashMap) {// 2 or more parameters
-            HashMap<String, Object> parameterMap = (HashMap<String, Object>) parameter;
-            for (String key : parameterMap.keySet()) {
-                if (parameterMap.get(key) instanceof PageParam) {
-                    page = (PageParam) parameterMap.get(key);
-                    pageKey = key + ".";
-                    break;
+            PageParam page = new PageParam();
+            String pageKey = "";// the key of PageParam when parameter type is HashMap
+            if (parameter instanceof PageParam) {// only one parameter
+                page = (PageParam) parameter;
+            } else if (parameter instanceof HashMap) {// 2 or more parameters
+                HashMap<String, Object> parameterMap = (HashMap<String, Object>) parameter;
+                for (String key : parameterMap.keySet()) {
+                    if (parameterMap.get(key) instanceof PageParam) {
+                        page = (PageParam) parameterMap.get(key);
+                        pageKey = key + ".";
+                        break;
+                    }
                 }
             }
-        }
 
-        // To determine if paging is needed, paging when the parameter is not the default
-        if (page != null && page.getIndex() != 0 && page.getRows() != Integer.MAX_VALUE) {
-            int index = page.getIndex();
-            int rows = page.getRows();
+            // To determine if paging is needed, paging when the parameter is not the default
+            if (page != null && page.getRows() != Integer.MAX_VALUE) {
+                int index = page.getIndex();
+                int rows = page.getRows();
 
-            BoundSql boundSql = ms.getBoundSql(parameter);
-            int total = this.getCount(ms, parameter, boundSql);
-            List list = Collections.EMPTY_LIST;
-            if (total > 0) {
-                Dialect dialect = new Dialect();
-                BoundSql newBoundSql = dialect.getBoungSQL(ms, boundSql, (index - 1) * rows, pageKey);
+                BoundSql boundSql = ms.getBoundSql(parameter);
+                int total = this.getCount(ms, parameter, boundSql);
+                List list = Collections.EMPTY_LIST;
+                if (total > 0) {
+                    Dialect dialect = new Dialect();
+                    BoundSql newBoundSql = dialect.getBoungSQL(ms, boundSql, page.getOffset(), pageKey);
 
-                MappedStatement newMs = copyFromMappedStatement(ms, new MySqlSource(newBoundSql));
-                queryArgs[MAPPED_STATEMENT_INDEX] = newMs;
-                list = (List) invocation.proceed();
+                    MappedStatement newMs = copyFromMappedStatement(ms, new MySqlSource(newBoundSql));
+                    queryArgs[MAPPED_STATEMENT_INDEX] = newMs;
+                    list = (List) invocation.proceed();
+                }
+                return new Page(list, index, rows, total);
             }
-            return new Page(list, index, rows, total);
         }
         return invocation.proceed();
     }
@@ -104,6 +111,8 @@ public class PageInterceptor implements Interceptor {
      */
     @Override
     public void setProperties(Properties properties) {
+        String enabled = properties.getProperty("pageEnabled");
+        pageEnabled = enabled != null ? Boolean.parseBoolean(enabled) : true;
     }
 
     /**
@@ -114,7 +123,7 @@ public class PageInterceptor implements Interceptor {
      * @return
      * @throws SQLException
      */
-    public int getCount(MappedStatement mappedStatement, Object parameter, BoundSql boundSql) throws SQLException {
+    private int getCount(MappedStatement mappedStatement, Object parameter, BoundSql boundSql) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("select count(1) from (");
         sqlBuilder.append(clearOrderBy(boundSql.getSql())).append(") tmp");

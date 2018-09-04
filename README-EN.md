@@ -1,9 +1,9 @@
-# easypage
+## easypage
 A very simple mybatis pagination plugin, supports MySQL, Oracle.
 
-# Tutorial
+## Tutorial
 
-### 一、Adding dependencies in pom.xml
+### 1. Adding dependencies in pom.xml
 
 ```
 <dependency>
@@ -13,7 +13,7 @@ A very simple mybatis pagination plugin, supports MySQL, Oracle.
  </dependency>
 ```
 
-### 二、Configure plugins
+### 2. Configure plugins
 Non-SpringBoot project, add the following code in mybatis-config.xml:
 ```
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -52,7 +52,7 @@ public SqlSessionFactory sqlSessionFactoryBean() throws Exception {
 }
 ``````
 
-### 三、Add pageParam parameter in the mapper. The plugin will automatically page it.
+### 3. Add pageParam parameter in the mapper. The plugin will automatically page it.
 
 
 ```
@@ -74,10 +74,27 @@ public PageResult getAll(PageParam page) throws Exception {
 Visit http://127.0.0.1:8080/user/getAll?index=1&rows=10 to get the result of paging:
 ![](page_result.png)
 
-### 四、FAQ
+### 4. Temporarily stop paging
+```
+@Configuration
+public class EasyPageConfig {
+
+    @Bean
+    public PageInterceptor pageHelper() {
+        PageInterceptor easyPage = new PageInterceptor();
+        Properties p = new Properties();
+        p.setProperty("pageEnabled", "false");
+        easyPage.setProperties(p);
+        return easyPage;
+    }
+
+}
+```
+
+## FAQ
 
 1、 Configuration is correct, but no paging
-* In the PageParam parameter, the index default value is 0, and rows default value is Integer.MAX_VALUE. As long as one parameter is the default value, it will not paged.
+* In the PageParam parameter, the index default value is 0, and rows default value is Integer.MAX_VALUE. As long as the rows is the default value, it will not paged.
 * Index is counted from 1。
 
 2、 Whether you need to configure the database type?

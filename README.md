@@ -1,9 +1,9 @@
-# easypage
-
 ## [English](README-EN.md)
+
+## easypage
 非常简洁的mybatis分页插件，支持MySQL，Oracle数据库。  
 
-# 使用教程
+## 使用教程
 
 ### 一、pom.xml中添加依赖
 
@@ -76,12 +76,30 @@ public PageResult getAll(PageParam page) throws Exception {
 访问 http://127.0.0.1:8080/user/getAll?index=1&rows=10 ，得到分页结果如下：
 ![](page_result.png)
 
-### 四、常见问题
 
-1、 配置正确，但是没有分页
+### 四、暂时停止分页
+```
+@Configuration
+public class EasyPageConfig {
 
-* PageParam参数中index默认为0， rows默认为Integer.MAX_VALUE，只要有一个参数为默认值时都不会分页。
-* index从1开始计数，表示第一页。
+    @Bean
+    public PageInterceptor pageHelper() {
+        PageInterceptor easyPage = new PageInterceptor();
+        Properties p = new Properties();
+        p.setProperty("pageEnabled", "false");// 不分页
+        easyPage.setProperties(p);
+        return easyPage;
+    }
+
+}
+```
+
+## 常见问题
+
+1、 分页没有生效
+
+* PageParam 参数中 index 默认值为0，1 表示第一页，以此类推。
+* PageParam 参数中 rows 默认值为 Integer.MAX_VALUE ，为默认值时不会分页。
 
 2、 是否需要配置数据库类型
 * 不需要配置，插件会根据数据库元数据自动识别数据库类型。
